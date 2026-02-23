@@ -4,7 +4,7 @@ import os
 import time
 import numpy as np
 import pickle as pkl
-from sklearn.metrics._scorer import balanced_accuracy_scorer, _ThresholdScorer
+from sklearn.metrics._scorer import balanced_accuracy_scorer
 from sklearn.preprocessing import OneHotEncoder
 
 from mindware.utils.logging_utils import get_logger
@@ -16,6 +16,7 @@ from mindware.components.utils.topk_saver import CombinedTopKModelSaver
 from mindware.components.utils.class_loader import get_combined_candidtates
 from mindware.components.models.classification import _classifiers, _addons
 from mindware.components.utils.constants import *
+from mindware.components.metrics.metric import is_threshold_scorer
 
 
 def get_estimator(config, estimator_id):
@@ -173,8 +174,7 @@ class ClassificationEvaluator(_BaseEvaluator):
 
             score = validation(clf, self.scorer, _x_train, _y_train, _x_val, _y_val,
                                random_state=self.seed,
-                               onehot=self.onehot_encoder if isinstance(self.scorer,
-                                                                        _ThresholdScorer) else None,
+                               onehot=self.onehot_encoder if is_threshold_scorer(self.scorer) else None,
                                fit_params=fit_params)
 
             if np.isfinite(score):
@@ -239,8 +239,7 @@ class ClassificationEvaluator(_BaseEvaluator):
 
                     _score = validation(clf, self.scorer, _x_train, _y_train, _x_val, _y_val,
                                         random_state=self.seed,
-                                        onehot=self.onehot_encoder if isinstance(self.scorer,
-                                                                                 _ThresholdScorer) else None,
+                                        onehot=self.onehot_encoder if is_threshold_scorer(self.scorer) else None,
                                         fit_params=fit_params)
                     scores.append(_score)
                 score = np.mean(scores)
@@ -300,8 +299,7 @@ class ClassificationEvaluator(_BaseEvaluator):
                 self.onehot_encoder.fit(y)
             score = validation(clf, self.scorer, _act_x_train, _act_y_train, _x_val, _y_val,
                                random_state=self.seed,
-                               onehot=self.onehot_encoder if isinstance(self.scorer,
-                                                                        _ThresholdScorer) else None,
+                               onehot=self.onehot_encoder if is_threshold_scorer(self.scorer) else None,
                                fit_params=fit_params)
 
             if np.isfinite(score) and downsample_ratio == 1:

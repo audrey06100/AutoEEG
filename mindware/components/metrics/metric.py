@@ -2,6 +2,22 @@ from sklearn.metrics._scorer import make_scorer, _BaseScorer
 from functools import partial
 
 
+def is_threshold_scorer(scorer):
+    if hasattr(scorer, '_response_method'):
+        res = scorer._response_method
+        if isinstance(res, (list, tuple)):
+            return 'predict_proba' in res or 'decision_function' in res
+        return res in ['predict_proba', 'decision_function']
+    return False
+
+
+def is_predict_scorer(scorer):
+    if hasattr(scorer, '_response_method'):
+        res = scorer._response_method
+        return res == 'predict'
+    return False
+
+
 def get_metric(metric):
     # Metrics for classification
     if metric in ["accuracy", "acc"]:

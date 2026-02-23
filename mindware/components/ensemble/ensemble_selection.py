@@ -2,11 +2,12 @@ from collections import Counter
 import numpy as np
 import pickle as pkl
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics._scorer import _BaseScorer, _PredictScorer, _ThresholdScorer
+from sklearn.metrics._scorer import _BaseScorer
 
 from mindware.components.utils.constants import *
 from mindware.components.ensemble.base_ensemble import BaseEnsembleModel
 from mindware.components.feature_engineering.parse import construct_node
+from mindware.components.metrics.metric import is_threshold_scorer, is_predict_scorer
 
 
 class EnsembleSelection(BaseEnsembleModel):
@@ -34,10 +35,10 @@ class EnsembleSelection(BaseEnsembleModel):
         self.random_state = np.random.RandomState(1)
 
     def calculate_score(self, pred, y_true):
-        if isinstance(self.metric, _ThresholdScorer):
+        if is_threshold_scorer(self.metric):
             if len(y_true.shape) == 1:
                 y_true = self.encoder.transform(np.reshape(y_true, (len(y_true), 1))).toarray()
-        elif self.task_type in CLS_TASKS and isinstance(self.metric, _PredictScorer):
+        elif self.task_type in CLS_TASKS and is_predict_scorer(self.metric):
             pred = np.argmax(pred, axis=-1)
         score = self.metric._score_func(y_true, pred) * self.metric._sign
         return score
