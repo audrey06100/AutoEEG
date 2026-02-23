@@ -1,6 +1,0 @@
-###########
-Change Logs
-###########
-
-Coming Soon!
-
