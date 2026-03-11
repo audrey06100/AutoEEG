@@ -3,7 +3,7 @@ from mindware.components.optimizers.random_search_optimizer import RandomSearchO
 from mindware.components.optimizers.mfse_optimizer import MfseOptimizer
 from mindware.components.optimizers.bohb_optimizer import BohbOptimizer
 from mindware.components.optimizers.tpe_optimizer import TPEOptimizer
-from mindware.components.optimizers.hypertune_optimizer import LocalParallelAMFES
+#from mindware.components.optimizers.hypertune_optimizer import LocalParallelAMFES
 
 
 def build_hpo_optimizer(eval_type, evaluator, config_space, optimizer='smac',
@@ -14,8 +14,8 @@ def build_hpo_optimizer(eval_type, evaluator, config_space, optimizer='smac',
         optimizer_class = MfseOptimizer
     elif eval_type == 'partial_bohb':
         optimizer_class = BohbOptimizer
-    elif eval_type == 'partial_hypertune':
-        optimizer_class = LocalParallelAMFES
+    # elif eval_type == 'partial_hypertune':
+    #     optimizer_class = LocalParallelAMFES
     else:
         # TODO: Support asynchronous BO
         if optimizer == 'random_search':

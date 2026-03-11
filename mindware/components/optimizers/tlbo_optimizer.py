@@ -7,7 +7,7 @@ from collections import OrderedDict
 
 from openbox.utils.constants import SUCCESS
 from openbox.optimizer.smbo import SMBO
-from solnml.components.optimizers.base_optimizer import BaseOptimizer, MAX_INT
+from mindware.components.optimizers.base_optimizer import BaseOptimizer, MAX_INT
 
 cur_dir = os.path.dirname(__file__)
 source_dir = os.path.join('%s', '..', 'transfer_learning', 'tlbo', 'runhistory') % cur_dir
