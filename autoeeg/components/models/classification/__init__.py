@@ -1,4 +1,7 @@
 from .lda import LDA
+from .svm import SVM
+from .random_forest import RandomForest
+from .logistic_regression import LR
+from .qda import QDA
 
-# Export classes for clean importing in main.py
-__all__ = ['LDA']
+__all__ = ['LDA', 'SVM', 'RandomForest', 'LR', 'QDA']

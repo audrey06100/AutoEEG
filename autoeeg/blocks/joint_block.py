@@ -30,14 +30,11 @@ class EEGJointBlock(JointBlock):
                  seed=1):
         
         # --- MASKING START ---
-        # Hack: AbstractBlock.__init__ calls is_imbalanced_dataset(data) 
-        # which fails on EEGDataNode list labels.
-        # We pass a temporary copy with flattened labels to the base class.
         from autoeeg.components.feature_engineering.transformation_graph import EEGDataNode
         if isinstance(data, EEGDataNode) and isinstance(data.data[1], list):
             flat_labels = np.concatenate([evt[:, 2] for evt in data.data[1]])
             masked_data = data.copy_()
-            masked_data.data[1] = flat_labels # Base class can handle this
+            masked_data.data[1] = flat_labels
         else:
             masked_data = data
         # --- MASKING END ---
@@ -60,13 +57,10 @@ class EEGJointBlock(JointBlock):
                                n_jobs=n_jobs,
                                seed=seed)
 
-        # Restore the original EEG data (with lists) after base init
         self.original_data = data.copy_()
         self.fixed_config = fixed_config
         self.algo_candidates = algo_candidates
-        print(f"[DEBUG] EEGJointBlock Initialized. Candidates: {list(algo_candidates.keys()) if algo_candidates else 'None'}")
 
-        # Combine configuration space
         cs = ConfigurationSpace()
         if fe_config_space is not None:
             cs.add_hyperparameters(fe_config_space.get_hyperparameters())
@@ -78,7 +72,6 @@ class EEGJointBlock(JointBlock):
             cs.add_forbidden_clauses(cash_config_space.get_forbiddens())
         self.joint_cs = cs
 
-        # Define EEG evaluator
         self.evaluator = EEGClassificationEvaluator(
             fixed_config=fixed_config,
             scorer=self.metric,
@@ -97,3 +90,10 @@ class EEGJointBlock(JointBlock):
                                              inner_iter_num_per_iter=1,
                                              timestamp=self.timestamp,
                                              seed=self.seed, n_jobs=self.n_jobs)
+
+    def get_history(self):
+        """Returns the list of observations from the internal HPO optimizer."""
+        if hasattr(self.optimizer, 'optimizer'):
+            # This handles the SMACOptimizer wrapper around OpenBox SMBO
+            return self.optimizer.optimizer.get_history().observations
+        return []

@@ -62,7 +62,8 @@ class CSPTransformer(EEGTransformer):
     @staticmethod
     def get_hyperparameter_search_space(optimizer='smac'):
         cs = ConfigurationSpace()
-        n_components = UniformIntegerHyperparameter("n_components", 2, 12, default_value=4)
+        # Force even numbers for CSP components (standard EEG practice)
+        n_components = CategoricalHyperparameter("n_components", [2, 4, 6, 8, 10], default_value=4)
         reg = CategoricalHyperparameter("reg", ["none", "shrinkage", "diagonal_fixed"], default_value="none")
         cs.add_hyperparameters([n_components, reg])
         return cs

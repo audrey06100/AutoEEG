@@ -2,10 +2,11 @@ from mindware.base_estimator import BaseEstimator
 from autoeeg.automl import EEGAutoML
 
 class BaseEEGEstimator(BaseEstimator):
-    def __init__(self, fe_candidates=None, algo_candidates=None, **kwargs):
+    def __init__(self, fe_candidates=None, algo_candidates=None, execution_tree=None, **kwargs):
         super().__init__(**kwargs)
         self.fe_candidates = fe_candidates
         self.algo_candidates = algo_candidates
+        self.execution_tree = execution_tree
         print(f"[DEBUG] BaseEEGEstimator Initialized. FE Stages: {len(fe_candidates) if fe_candidates else 0}")
 
     def get_automl(self):
@@ -17,6 +18,7 @@ class BaseEEGEstimator(BaseEstimator):
         engine = automl_class(
             fe_candidates=self.fe_candidates,
             algo_candidates=self.algo_candidates,
+            execution_tree=self.execution_tree,
             dataset_name=self.dataset_name,
             task_type=self.task_type,
             metric=self.metric,
@@ -38,6 +40,7 @@ class BaseEEGEstimator(BaseEstimator):
         )
         print("[DEBUG] BaseEEGEstimator.build_engine() completed")
         return engine
+
 
     def feature_origin(self):
         return None

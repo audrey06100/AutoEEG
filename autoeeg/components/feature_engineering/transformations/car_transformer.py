@@ -1,12 +1,13 @@
 import mne
+import numpy as np
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 from autoeeg.components.feature_engineering.transformations.base_eeg_transformer import EEGTransformer
 from autoeeg.components.feature_engineering.transformation_graph import EEGDataNode
 
-class ReReferencer(EEGTransformer):
+class CARTransformer(EEGTransformer):
     def __init__(self, method='average', robust=False, random_state=1):
-        super().__init__("re-referencer", random_state)
+        super().__init__("car_transformer", random_state)
         self.method = method
         self.robust = robust
         self.type = 103
@@ -21,13 +22,26 @@ class ReReferencer(EEGTransformer):
             
             if self.method == 'average':
                 if self.robust:
-                    # A simple way to do robust CAR: 
-                    # detect channels with extremely high variance and mark them as bad 
+                    # Robust CAR: Detect channels with extreme variance and mark as bad
                     # before calculating the average.
-                    # This is a placeholder for more complex logic.
-                    pass
+                    data = raw_cp.get_data(picks='eeg')
+                    # Calculate standard deviation for each channel
+                    stds = data.std(axis=1)
+                    median_std = np.median(stds)
+                    std_std = np.std(stds)
+                    
+                    # Heuristic: channels with std > median + 2.5 * std_std are likely bad
+                    # (Standard outlier detection)
+                    threshold = median_std + 2.5 * std_std
+                    bad_idx = np.where(stds > threshold)[0]
+                    
+                    eeg_ch_names = [raw_cp.ch_names[i] for i in raw_cp.ch_info['picks']] if hasattr(raw_cp, 'ch_info') else raw_cp.copy().pick_types(eeg=True).ch_names
+                    
+                    new_bads = [eeg_ch_names[i] for i in bad_idx]
+                    raw_cp.info['bads'] = list(set(raw_cp.info['bads'] + new_bads))
                 
                 # set_eeg_reference with 'average' performs CAR in MNE
+                # It automatically excludes 'bads' from the average calculation
                 raw_cp.set_eeg_reference(ref_channels='average', verbose=False)
             
             new_raw_list.append(raw_cp)
@@ -42,7 +56,7 @@ class ReReferencer(EEGTransformer):
     @staticmethod
     def get_hyperparameter_search_space(optimizer='smac'):
         cs = ConfigurationSpace()
-        # Only search for robust option if we chose ReReferencer
+        # Only search for robust option if we chose CARTransformer
         # (The option of NOT re-referencing is handled by EmptyTransformer in main.py)
         robust = CategoricalHyperparameter("robust", [True, False], default_value=False)
         cs.add_hyperparameter(robust)

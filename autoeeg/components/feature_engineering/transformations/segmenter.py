@@ -6,10 +6,11 @@ from autoeeg.components.feature_engineering.transformations.base_eeg_transformer
 from autoeeg.components.feature_engineering.transformation_graph import EEGDataNode
 
 class Segmenter(EEGTransformer):
-    def __init__(self, tmin=-0.2, tmax=0.5, random_state=1):
+    def __init__(self, tmin=-0.2, tmax=0.5, baseline=None, random_state=1):
         super().__init__("segmenter", random_state)
         self.tmin = tmin
         self.tmax = tmax
+        self.baseline = baseline # Default to None to avoid errors with positive tmin
         self.type = 104
 
     def _operate(self, data_node: EEGDataNode):
@@ -23,8 +24,9 @@ class Segmenter(EEGTransformer):
         
         for i, (raw, events) in enumerate(zip(raw_list, event_list)):
             # Create Epochs
+            # We use the baseline passed during init (defaults to None)
             epochs = mne.Epochs(raw, events, tmin=self.tmin, tmax=self.tmax, 
-                                preload=True, baseline=(None, 0), verbose=False)
+                                preload=True, baseline=self.baseline, verbose=False)
             
             e_data = epochs.get_data()
             e_labels = epochs.events[:, 2]
