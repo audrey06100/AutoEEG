@@ -121,7 +121,7 @@ class ConditioningBlock(AbstractBlock):
         self.pick_id = 0
         self.update_cnt = 0
         arm_num = len(self.arms)
-        self.optimal_algo_id = None
+        self.optimal_arm_id = None
         self.arm_candidate = self.arms.copy()
         self.best_lower_bounds = np.zeros(arm_num)
         _iter_id = 0
@@ -147,7 +147,7 @@ class ConditioningBlock(AbstractBlock):
             # Update results after each iteration
             self.arm_cost_stats[arm_to_pull].append(time.time() - _start_time)
             if reward > self.incumbent_perf:
-                self.optimal_algo_id = arm_to_pull
+                self.optimal_arm_id = arm_to_pull
                 self.incumbent_perf = reward
                 self.incumbent = self.sub_bandits[arm_to_pull].incumbent
             self.eval_dict.update(self.sub_bandits[arm_to_pull].eval_dict)
@@ -166,8 +166,8 @@ class ConditioningBlock(AbstractBlock):
             scores = np.array(scores)
             self.logger.info('=' * 50)
             self.logger.info('Node index: %s' % str(self.node_index))
-            self.logger.info('Best_algo_perf:  %s' % str(self.incumbent_perf))
-            self.logger.info('Best_algo_id:    %s' % str(self.optimal_algo_id))
+            self.logger.info('Best_arm_perf:  %s' % str(self.incumbent_perf))
+            self.logger.info('Best_arm_id:    %s' % str(self.optimal_arm_id))
             self.logger.info('Arm candidates:  %s' % str(self.arms))
             self.logger.info('Best val scores: %s' % str(list(scores)))
             self.logger.info('=' * 50)

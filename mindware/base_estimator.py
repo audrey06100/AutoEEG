@@ -134,7 +134,7 @@ class BaseEstimator(object):
 
     @property
     def best_algo_id(self):
-        return self._ml_engine.solver.optimal_algo_id
+        return self._ml_engine.solver.optimal_arm_id
 
     @property
     def nbest_algo_id(self):

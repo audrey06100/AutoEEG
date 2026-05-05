@@ -49,7 +49,7 @@ class AlternatingBlock(AbstractBlock):
                                                seed=seed)
 
         self.arms = ['hpo', 'fe']
-        self.optimal_algo_id = None
+        self.optimal_arm_id = None
         self.first_start = True
         self.sub_bandits = dict()
         self.rewards = dict()
@@ -152,7 +152,7 @@ class AlternatingBlock(AbstractBlock):
             cur_inc = self.sub_bandits[arm_to_pull].incumbent
             self.inc[arm_to_pull] = cur_inc
             self.local_hist[arm_to_pull].append(cur_inc)
-            self.optimal_algo_id = arm_to_pull
+            self.optimal_arm_id = arm_to_pull
             self.incumbent_perf = reward
 
             # Alter-HPO strategy: HPO changes if FE changes, FE keeps though HPO changes
@@ -188,7 +188,7 @@ class AlternatingBlock(AbstractBlock):
         self.logger.info('=' * 50)
         self.logger.info('Node index: %s' % str(self.node_index))
         self.logger.info('Best_part_perf: %s' % str(self.incumbent_perf))
-        self.logger.info('Best_part: %s' % str(self.optimal_algo_id))
+        self.logger.info('Best_part: %s' % str(self.optimal_arm_id))
         self.logger.info('Best val scores: %s' % str(list(scores)))
         self.logger.info('=' * 50)
 
